@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sorry, Citra!</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: one centered column, one screen at a time. Plum outlines + hard offset shadows
+     tie the CSS cards, the SVG envelope and the pixel-art bears into one sticker-like look. */
+  --cream:#FFF8EE;
+  --paper:#FFFDF8;
+  --pink-100:#FFE6EF;
+  --pink-200:#FFCADD;
+  --pink-300:#FFA9C8;
+  --pink-500:#F0679A;
+  --berry:#B3326A;
+  --lav-100:#F0E8FF;
+  --lav-200:#DDD0FF;
+  --lav-300:#C2ADFA;
+  --lav-600:#7A5BC4;
+  --ink:#4A2C4F;
+  --ink-soft:#6A4A70;
+  --sun:#FFD86B;
+  --font-display:'Fredoka','Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Nunito','Segoe UI',system-ui,sans-serif;
+  --font-hand:'Caveat','Bradley Hand','Comic Sans MS',cursive;
+  --font-pixel:'Press Start 2P','Courier New',monospace;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{background:var(--cream)}
+body{
+  margin:0;
+  min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background-color:var(--cream);
+  background-image:
+    radial-gradient(60rem 38rem at 8% -8%, var(--pink-100), transparent 62%),
+    radial-gradient(52rem 40rem at 100% 100%, var(--lav-100), transparent 62%);
+  padding-block:12px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  overflow-x:hidden;
+}
+
+/* ---------- background layers ---------- */
+.floaters{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.floater{position:absolute;bottom:-60px;display:block;animation:rise linear infinite;will-change:transform}
+.floater .sway{display:block;width:100%;height:100%;animation:sway ease-in-out infinite alternate}
+.floater svg{display:block;width:100%;height:100%}
+@keyframes rise{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(calc(-100vh - 120px)) rotate(40deg)}}
+@keyframes sway{from{transform:translateX(-14px)}to{transform:translateX(14px)}}
+
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+#loves{position:fixed;inset:0;pointer-events:none;z-index:55;overflow:hidden}
+.love{position:absolute;bottom:-40px;animation:loveUp var(--t,3.4s) ease-out forwards}
+.love svg{display:block;width:100%;height:100%}
+@keyframes loveUp{
+  0%{transform:translateY(0) scale(.5);opacity:0}
+  12%{opacity:1}
+  100%{transform:translate(var(--dx,0px),calc(-100vh - 40px)) scale(1.15);opacity:0}
+}
+
+/* ---------- shell ---------- */
+.bar,.stage,.foot{position:relative;z-index:1}
+.bar{
+  display:flex;align-items:center;gap:12px;
+  width:100%;max-width:960px;min-height:46px;margin-inline:auto;
+}
+.chip{
+  font:700 .9rem var(--font-body);
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;
+  color:var(--ink);background:var(--paper);
+  border:2.5px solid var(--ink);border-radius:999px;
+  box-shadow:0 3px 0 var(--ink);
+  cursor:pointer;
+  transition:transform .12s,box-shadow .12s;
+}
+.chip:hover{transform:translateY(-1px)}
+.chip:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.chip:focus-visible,.btn:focus-visible,.env-btn:focus-visible{outline:3px solid var(--lav-600);outline-offset:3px}
+.music{margin-left:auto}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px}
+.eq i{display:block;width:3px;height:100%;background:var(--berry);border-radius:1px;transform-origin:bottom;transform:scaleY(.25)}
+.music.on .eq i{animation:eq .9s ease-in-out infinite}
+.music.on .eq i:nth-child(2){animation-delay:-.3s}
+.music.on .eq i:nth-child(3){animation-delay:-.6s}
+@keyframes eq{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+
+.stage{flex:1;display:grid;place-items:center;width:100%;padding-block:16px}
+.screen{
+  display:flex;flex-direction:column;align-items:center;gap:22px;
+  width:100%;max-width:560px;text-align:center;
+}
+.screen:focus{outline:none}
+.screen.in{animation:screenIn .5s cubic-bezier(.2,.9,.3,1.15) both}
+.screen.out{animation:screenOut .3s ease-in both}
+@keyframes screenIn{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes screenOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-14px) scale(.97)}}
+
+/* ---------- type ---------- */
+.title{
+  margin:0;
+  font:700 clamp(2.2rem,9vw,3.9rem)/1.05 var(--font-display);
+  letter-spacing:.01em;color:var(--berry);
+  text-shadow:3px 3px 0 var(--lav-200);
+  text-wrap:balance;
+}
+.title.sm{font-size:clamp(1.9rem,7.4vw,3rem)}
+.sub{margin:0;font:700 clamp(1.1rem,4.6vw,1.4rem)/1.35 var(--font-body)}
+.hint{margin:0;font:700 1.7rem/1.1 var(--font-hand);color:var(--lav-600);animation:nudge 1.6s ease-in-out infinite;transition:opacity .3s}
+.hint.gone{opacity:0;animation:none}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ---------- envelope ---------- */
+.env-btn{background:none;border:0;padding:0;cursor:pointer;line-height:0;max-width:100%;-webkit-tap-highlight-color:transparent}
+.env{
+  display:block;width:min(86vw,360px);max-width:100%;height:auto;overflow:visible;
+  transform-origin:50% 90%;
+  animation:wiggle 3.2s ease-in-out infinite;
+  filter:drop-shadow(6px 7px 0 #C2ADFA);
+  transition:filter .2s;
+}
+.env *{transform-box:fill-box}
+.env-btn:hover .env:not(.open){filter:drop-shadow(6px 7px 0 #C2ADFA) drop-shadow(0 0 14px rgba(240,103,154,.55))}
+@keyframes wiggle{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.flap-closed{transform-origin:50% 0;transition:transform .28s ease-in}
+.flap-open{transform-origin:50% 100%;transform:scaleY(0);transition:transform .3s ease-out .26s}
+.e-letter{transition:transform .9s cubic-bezier(.3,1.3,.5,1) .55s}
+.e-seal{transition:opacity .15s}
+.env.open{animation:none;transform:none}
+.env.open .flap-closed{transform:scaleY(0)}
+.env.open .flap-open{transform:scaleY(1)}
+.env.open .e-letter{transform:translateY(-104px)}
+.env.open .e-seal{opacity:0}
+
+/* ---------- cards & buttons ---------- */
+.paper{
+  position:relative;width:100%;
+  padding:34px 22px 28px;
+  background-color:var(--paper);
+  background-image:radial-gradient(#F6D5E4 1.2px,transparent 1.3px);
+  background-size:18px 18px;
+  border:3px solid var(--ink);border-radius:22px;
+  box-shadow:7px 7px 0 var(--pink-300);
+  transform:rotate(-.8deg);
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.paper::before{
+  content:"";position:absolute;top:-15px;left:50%;
+  width:96px;height:28px;margin-left:-48px;
+  background:repeating-linear-gradient(45deg,var(--pink-200) 0 9px,#FFDDE9 9px 18px);
+  border:2px solid var(--ink);border-radius:4px;
+  transform:rotate(-3deg);opacity:.95;
+}
+.paper p{margin:0;text-wrap:balance}
+.l1{font:600 clamp(1.25rem,5.2vw,1.55rem)/1.35 var(--font-display)}
+.l2{font:700 clamp(1.7rem,7.2vw,2.3rem)/1.15 var(--font-display);color:var(--berry)}
+.l3{font:700 1.7rem/1.1 var(--font-hand);color:var(--lav-600)}
+.choices{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:8px}
+
+.note{
+  width:100%;
+  display:flex;flex-direction:column;gap:12px;
+  padding:18px 20px;text-align:left;
+  font-size:1.08rem;line-height:1.55;
+  background:var(--paper);
+  border:3px solid var(--ink);border-radius:20px;
+  box-shadow:6px 6px 0 var(--pink-300);
+}
+.note p{margin:0;text-wrap:pretty}
+.note .big{font:700 clamp(1.8rem,8vw,2.6rem)/1.1 var(--font-display);color:var(--berry);text-align:center}
+.note .sign{font:700 2.1rem/1 var(--font-hand);color:var(--lav-600);text-align:center}
+
+.btn{
+  font:700 1.1rem var(--font-display);letter-spacing:.03em;
+  padding:13px 26px;min-width:140px;
+  color:var(--ink);background:var(--pink-300);
+  border:3px solid var(--ink);border-radius:999px;
+  box-shadow:0 5px 0 var(--ink);
+  cursor:pointer;
+  transition:transform .12s,box-shadow .12s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--ink)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn-nggak{background:var(--lav-300)}
+.btn-ghost{background:var(--paper)}
+
+/* ---------- pixel art ---------- */
+.art{display:block;line-height:0}
+.art svg{display:block;max-width:100%;height:auto}
+.bear-wrap{position:relative;display:inline-block;line-height:0;isolation:isolate}
+.bear-wrap::after{
+  content:"";position:absolute;left:14%;right:14%;bottom:-10px;height:10px;
+  border-radius:50%;background:rgba(74,44,79,.16);z-index:-1;
+}
+.sit{margin-bottom:6px}
+.cry .art{animation:sob 1.1s ease-in-out infinite}
+@keyframes sob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(3px) rotate(1.5deg)}}
+.tear{position:absolute;top:62%;width:8px;height:12px;background:#7CCBFF;border-radius:0 0 4px 4px;animation:drip 1.2s ease-in infinite}
+.t1{left:calc(28% - 4px)}
+.t2{right:calc(28% - 4px);animation-delay:-.6s}
+@keyframes drip{0%{transform:translateY(0);opacity:1}100%{transform:translateY(52px);opacity:0}}
+.happy .art{animation:hop 1.1s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes hop{
+  0%,100%{transform:translateY(0) scale(1,1)}
+  40%{transform:translateY(-22px) scale(.97,1.03)}
+  70%{transform:translateY(0) scale(1.05,.94)}
+}
+.pheart{position:absolute;bottom:62%;left:var(--l,10%);line-height:0;animation:pfloat 2.6s ease-in infinite;animation-delay:var(--d,0s);animation-fill-mode:backwards}
+@keyframes pfloat{
+  0%{opacity:0;transform:translateY(0) scale(.7)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translateY(-72px) scale(1.1)}
+}
+.hug{position:relative;display:flex;align-items:flex-end;justify-content:center;padding-top:50px;max-width:100%}
+.hugger{display:flex;flex-direction:column;align-items:center;gap:12px}
+.hugL{animation:hugL 1.3s ease-in-out infinite alternate}
+.hugR{animation:hugR 1.3s ease-in-out infinite alternate}
+@keyframes hugL{from{transform:translateX(-14px) rotate(-3deg)}to{transform:translateX(14px) rotate(5deg)}}
+@keyframes hugR{from{transform:translateX(14px) rotate(3deg)}to{transform:translateX(-14px) rotate(-5deg)}}
+.beat{position:absolute;left:50%;top:6px;line-height:0;transform:translateX(-50%);animation:beat .9s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.28)}}
+.tag{font:400 .62rem var(--font-pixel);letter-spacing:.05em;color:var(--ink)}
+
+/* ---------- footer ---------- */
+.foot{
+  width:100%;max-width:560px;margin:12px auto 0;padding-block:18px 8px;
+  text-align:center;color:var(--ink-soft);font-size:.92rem;line-height:1.55;
+}
+.foot p{margin:0;text-wrap:balance}
+.foot .copy{margin-top:6px;font-size:.82rem}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .floater,.floater .sway{animation:none!important}
+  .floater{bottom:auto;top:var(--ty,50%)}
+}
+</style>
+</head>
+<body>
+
+
+<div class="floaters" id="floaters" aria-hidden="true"></div>
+<div id="loves" aria-hidden="true"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <button class="chip" id="restartTop" type="button" hidden>↺ Mulai lagi</button>
+  <button class="chip music" id="musicBtn" type="button" aria-pressed="false" aria-label="Nyalakan atau matikan musik">
+    <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span id="musicLabel">Musik: OFF</span>
+  </button>
+</header>
+
+<main class="stage" id="stage">
+
+  <!-- 1. HOME -->
+  <section class="screen" id="s-home" tabindex="-1" aria-labelledby="h-home">
+    <h1 class="title" id="h-home">HEY, CITRA! 💗</h1>
+    <p class="sub">Eh, gw punya sesuatu buat lu...</p>
+    <button class="env-btn" id="envBtn" type="button" aria-label="Buka surat dari Aliph">
+      <svg class="env" id="env" viewBox="0 0 320 270" aria-hidden="true">
+        <g stroke="#4A2C4F" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M20 104Q20 90 34 90L286 90Q300 90 300 104L300 246Q300 260 286 260L34 260Q20 260 20 246Z" fill="#F58DB5"/>
+          <path class="flap-open" d="M20 76Q20 90 34 90L286 90Q300 90 300 76L166 4Q160 0 154 4Z" fill="#C2ADFA"/>
+          <g class="e-letter">
+            <rect x="44" y="112" width="232" height="132" rx="8" fill="#FFFDF8"/>
+            <path d="M70 146H176M70 170H248M70 194H222" stroke="#FFCADD" stroke-width="6" fill="none"/>
+            <g transform="translate(232 124) scale(1.15)"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.8 1.2 5.4 3.2 1.6-2 3.3-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z" fill="#F0679A" stroke-width="2"/></g>
+          </g>
+          <path d="M20 104L154 176Q160 180 166 176L300 104L300 246Q300 260 286 260L34 260Q20 260 20 246Z" fill="#FFCADD"/>
+          <path class="flap-closed" d="M20 104Q20 90 34 90L286 90Q300 90 300 104L166 176Q160 180 154 176Z" fill="#FFE6EF"/>
+          <g class="e-seal" transform="translate(160 166)"><g transform="scale(1.7) translate(-12 -12)"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.8 1.2 5.4 3.2 1.6-2 3.3-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z" fill="#F0679A" stroke-width="1.6"/></g></g>
+        </g>
+      </svg>
+    </button>
+    <p class="hint" id="hint">Klik suratnya dong hehe 💌</p>
+  </section>
+
+  <!-- 2. THE LETTER -->
+  <section class="screen" id="s-letter" tabindex="-1" hidden>
+    <div class="bear-wrap sit"><span class="art" data-art="ask" data-px="9"></span></div>
+    <article class="paper">
+      <p class="l1">Citrrraaa, maaf yaa gw gak bales chat lu tadi 😭</p>
+      <p class="l2">Lu ngambek gak sama gw?</p>
+      <p class="l3">Jawab jujur ya wkwkwk...</p>
+      <div class="choices">
+        <button class="btn" id="btnIya" type="button">IYA 😠</button>
+        <button class="btn btn-nggak" id="btnNggak" type="button">NGGAK 😇</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- 3. IYA -->
+  <section class="screen" id="s-iya" tabindex="-1" hidden>
+    <h2 class="title sm">Yahh 🥀, mau gw tulisin 100 kalimat I love you, Cit, gak?</h2>
+    <div class="bear-wrap cry">
+      <span class="art" data-art="cry" data-px="10"></span>
+      <span class="tear t1"></span><span class="tear t2"></span>
+    </div>
+    <div class="note">
+      <p>Jangan ngambek dongg, maaf yaa. Gw tadi gak bales chat lu, bukan berarti gw gak mau ngobrol sama lu.</p>
+      <p>Next time gw usahain ngabarin dulu kalau lagi gak bisa bales. Jangan dipendem sendiri yaa.</p>
+    </div>
+    <button class="btn" id="btnMaaf" type="button">Yaudah gw maafin 💗</button>
+  </section>
+
+  <!-- 3b. IYA ending -->
+  <section class="screen" id="s-iyaDone" tabindex="-1" hidden>
+    <h2 class="title">YEAYYY MAKASIH CITRAAA!!</h2>
+    <div class="bear-wrap happy">
+      <span class="art" data-art="happy" data-px="10"></span>
+      <span class="pheart" style="--l:-4%;--d:-.4s"><span class="art" data-art="heart" data-px="4"></span></span>
+      <span class="pheart" style="--l:44%;--d:-1.5s"><span class="art" data-art="heart" data-px="5"></span></span>
+      <span class="pheart" style="--l:88%;--d:-2.2s"><span class="art" data-art="heart" data-px="4"></span></span>
+    </div>
+    <div class="note">
+      <p>Finally gw bebas dari hukuman wkwkwk 😭❤️</p>
+      <p>Love yaa, jangan lupa senyum!</p>
+    </div>
+    <button class="btn" id="btnLoveB" type="button">Pernyataan Cinta ❤️</button>
+    <button class="btn btn-ghost" type="button" data-restart>Ulang dari awal 🔁</button>
+  </section>
+
+  <!-- 3c. GAK MAU ending -->
+  <section class="screen" id="s-gakmau" tabindex="-1" hidden>
+    <h2 class="title sm">Motivasi gw ilang 🥀</h2>
+    <div class="bear-wrap cry">
+      <span class="art" data-art="cry" data-px="10"></span>
+      <span class="tear t1"></span><span class="tear t2"></span>
+    </div>
+    <button class="btn btn-ghost" type="button" data-restart>Ulang dari awal 🔁</button>
+  </section>
+
+  <!-- 4. NGGAK -->
+  <section class="screen" id="s-nggak" tabindex="-1" hidden>
+    <h2 class="title">Horeee!! WKWKWK 🎉</h2>
+    <div class="bear-wrap happy">
+      <span class="art" data-art="happy" data-px="10"></span>
+      <span class="pheart" style="--l:-6%;--d:-.2s"><span class="art" data-art="heart" data-px="4"></span></span>
+      <span class="pheart" style="--l:40%;--d:-1.3s"><span class="art" data-art="heart" data-px="5"></span></span>
+      <span class="pheart" style="--l:90%;--d:-2s"><span class="art" data-art="heart" data-px="4"></span></span>
+    </div>
+    <div class="note">
+      <p>Kirain lu udah ngambek wkwkwk.</p>
+      <p>Walaupun lu gak ngambek, gw tetep mau minta maaf yaa. Gak enak juga bikin lu nunggu.</p>
+    </div>
+    <button class="btn" id="btnLoveA" type="button">Pernyataan Cinta ❤️</button>
+  </section>
+
+  <!-- 5. PERNYATAAN CINTA -->
+  <section class="screen" id="s-proposal" tabindex="-1" hidden>
+    <div class="bear-wrap sit"><span class="art" data-art="ask" data-px="9"></span></div>
+    <article class="paper">
+      <p class="l2">Citra, mau jadi calon pacar gw gak abis lulus SMP? ❤️</p>
+      <div class="choices">
+        <button class="btn" id="btnMau" type="button">MAU ❤️</button>
+        <button class="btn btn-nggak" id="btnGakMau" type="button">GAK MAU 🥀</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- 5b. MAU ending -->
+  <section class="screen" id="s-mau" tabindex="-1" hidden>
+    <h2 class="title sm">Hah serius? OMG, gw bisa mati bahagia 😭❤️</h2>
+    <div class="bear-wrap happy">
+      <span class="art" data-art="happy" data-px="10"></span>
+      <span class="pheart" style="--l:-4%;--d:-.4s"><span class="art" data-art="heart" data-px="4"></span></span>
+      <span class="pheart" style="--l:44%;--d:-1.5s"><span class="art" data-art="heart" data-px="5"></span></span>
+      <span class="pheart" style="--l:88%;--d:-2.2s"><span class="art" data-art="heart" data-px="4"></span></span>
+    </div>
+    <button class="btn btn-ghost" type="button" data-restart>Ulang dari awal 🔁</button>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>Website kecil dari Aliph buat Citra.</p>
+  <p>Made with love, a little panic, and 20 minutes of silence. WKWKWK.</p>
+  <p class="copy">© 2026 Aliph.</p>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(id){ return document.getElementById(id); };
+  var reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var rand = function(a,b){ return a + Math.random()*(b-a); };
+  var pick = function(a){ return a[Math.floor(Math.random()*a.length)]; };
+
+  var HEART_D = 'M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.8 1.2 5.4 3.2 1.6-2 3.3-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z';
+  var HEART_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + HEART_D + '" fill="currentColor"/></svg>';
+  var FLOWER_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="12" cy="5.5" r="4.2"/><circle cx="18.2" cy="10" r="4.2"/><circle cx="15.8" cy="17.3" r="4.2"/><circle cx="8.2" cy="17.3" r="4.2"/><circle cx="5.8" cy="10" r="4.2"/></g><circle cx="12" cy="12" r="3" fill="#FFD86B"/></svg>';
+
+  //ART-START
+  function pixelSVG(rows, pal, px){
+    var w = Math.max.apply(null, rows.map(function(r){ return r.length; }));
+    var h = rows.length, rects = '';
+    rows.forEach(function(r, y){
+      var x = 0;
+      while (x < r.length){
+        var c = r[x];
+        if (c === '.'){ x++; continue; }
+        var n = 1;
+        while (x + n < r.length && r[x + n] === c) n++;
+        rects += '<rect x="' + x + '" y="' + y + '" width="' + n + '" height="1" fill="' + pal[c] + '"/>';
+        x += n;
+      }
+    });
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + (w*px) + '" height="' + (h*px) + '" shape-rendering="crispEdges" aria-hidden="true">' + rects + '</svg>';
+  }
+  var hp = function(n){ return 'p'.repeat(n); };
+  var TOP = ['..oo........oo..', '.oppo......oppo.', '.o' + hp(3) + 'oooooo' + hp(3) + 'o.'];
+  var PLAIN = 'o' + hp(14) + 'o';
+  var CHIN = ['o' + hp(14) + 'o', '.o' + hp(12) + 'o.', '..o' + hp(10) + 'o..', '...oooooooooo...'];
+  var CHEEKS = 'opcc' + hp(8) + 'ccpo';
+  var EYE_HI = 'o' + hp(3) + 'ew' + hp(4) + 'ew' + hp(3) + 'o';
+  var EYE_LO = 'o' + hp(3) + 'ee' + hp(4) + 'ee' + hp(3) + 'o';
+  var bear = function(mid){ return TOP.concat(mid, CHIN); };
+
+  var CRY = bear([
+    PLAIN, EYE_HI, EYE_LO,
+    'o' + hp(3) + 'b' + hp(6) + 'b' + hp(3) + 'o',
+    'opccb' + hp(6) + 'bccpo',
+    'o' + hp(3) + 'b' + hp(2) + 'oo' + hp(2) + 'b' + hp(3) + 'o',
+    'o' + hp(5) + 'o' + hp(2) + 'o' + hp(5) + 'o'
+  ]);
+  var ASK = bear([
+    PLAIN, EYE_HI, EYE_LO, CHEEKS, PLAIN,
+    'o' + hp(6) + 'oo' + hp(6) + 'o', PLAIN
+  ]);
+  var HAPPY = bear([
+    PLAIN,
+    'o' + hp(3) + 'oo' + hp(4) + 'oo' + hp(3) + 'o',
+    'oppoppoppoppoppo',
+    CHEEKS,
+    'o' + hp(4) + 'oooooo' + hp(4) + 'o',
+    'o' + hp(5) + 'orro' + hp(5) + 'o',
+    'o' + hp(6) + 'oo' + hp(6) + 'o'
+  ]);
+  var HEART_ROWS = ['.oo.oo.', 'orrorro', 'orwrrro', 'orrrrro', '.orrro.', '..oro..', '...o...'];
+
+  var PINK = {o:'#4A2C4F', e:'#4A2C4F', p:'#FFB8D1', c:'#FF7FA8', w:'#FFFFFF', b:'#7CCBFF', r:'#FF5C8A'};
+  var LAV  = {o:'#4A2C4F', e:'#4A2C4F', p:'#CDB8FF', c:'#FFA3C6', w:'#FFFFFF', b:'#7CCBFF', r:'#FF5C8A'};
+  var HP   = {o:'#4A2C4F', r:'#FF5C8A', w:'#FFFFFF'};
+
+  var ROWS = {cry:CRY, ask:ASK, happy:HAPPY, heart:HEART_ROWS};
+  var ART = {
+    cry:      function(px){ return pixelSVG(CRY, PINK, px); },
+    ask:      function(px){ return pixelSVG(ASK, PINK, px); },
+    happy:    function(px){ return pixelSVG(HAPPY, PINK, px); },
+    happyLav: function(px){ return pixelSVG(HAPPY, LAV, px); },
+    heart:    function(px){ return pixelSVG(HEART_ROWS, HP, px); }
+  };
+  //ART-END
+
+  document.querySelectorAll('[data-art]').forEach(function(el){
+    var f = ART[el.getAttribute('data-art')];
+    if (f) el.innerHTML = f(+el.getAttribute('data-px') || 10);
+  });
+
+  /* ---------- floating hearts & flowers (background) ---------- */
+  (function makeFloaters(){
+    var box = $('floaters');
+    var n = innerWidth < 600 ? 12 : 20;
+    var colors = ['#FF8FB5','#FFB8D1','#C2ADFA','#E5D9FF','#FFA9C8','#F7C6DA'];
+    for (var i = 0; i < n; i++){
+      var el = document.createElement('span');
+      el.className = 'floater';
+      var size = rand(14, 40), dur = rand(16, 32);
+      el.style.cssText = 'left:' + rand(0, 96).toFixed(1) + '%;--ty:' + rand(5, 88).toFixed(0) + '%;width:' + size.toFixed(0) + 'px;height:' + size.toFixed(0) + 'px;color:' + pick(colors) + ';opacity:' + rand(.35, .75).toFixed(2) + ';animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + rand(0, dur).toFixed(1) + 's';
+      var inner = document.createElement('span');
+      inner.className = 'sway';
+      inner.style.animationDuration = rand(4, 8).toFixed(1) + 's';
+      inner.style.animationDelay = '-' + rand(0, 6).toFixed(1) + 's';
+      inner.innerHTML = Math.random() < .55 ? HEART_SVG : FLOWER_SVG;
+      el.appendChild(inner);
+      box.appendChild(el);
+    }
+  })();
+
+  /* ---------- hearts that float up from the bottom ---------- */
+  var loveTimer = 0;
+  function loveBurst(n){
+    if (reduce) return;
+    var box = $('loves');
+    for (var i = 0; i < n; i++){
+      (function(){
+        var el = document.createElement('span');
+        var size = rand(18, 44);
+        el.className = 'love';
+        el.style.cssText = 'left:' + rand(2, 94).toFixed(1) + '%;width:' + size.toFixed(0) + 'px;height:' + size.toFixed(0) + 'px;color:' + pick(['#FF8FB5','#F0679A','#FFA9C8','#C2ADFA']) + ';--t:' + rand(2.6, 4.4).toFixed(1) + 's;--dx:' + rand(-60, 60).toFixed(0) + 'px;animation-delay:' + rand(0, .5).toFixed(2) + 's';
+        el.innerHTML = HEART_SVG;
+        box.appendChild(el);
+        var kill = function(){ if (el.parentNode) el.parentNode.removeChild(el); };
+        el.addEventListener('animationend', kill);
+        setTimeout(kill, 6000);
+      })();
+    }
+  }
+  function loveStream(ms){
+    stopLove();
+    if (reduce) return;
+    loveBurst(6);
+    loveTimer = setInterval(function(){ loveBurst(2); }, 300);
+    setTimeout(stopLove, ms);
+  }
+  function stopLove(){ if (loveTimer){ clearInterval(loveTimer); loveTimer = 0; } }
+
+  /* ---------- confetti ---------- */
+  var cv = $('confetti'), cx = cv.getContext('2d');
+  var HEART_PATH = (typeof Path2D === 'function') ? new Path2D(HEART_D) : null;
+  var parts = [], raf = 0, W = 0, H = 0;
+  var CONF = ['#FF8FB5','#FFB8D1','#C2ADFA','#DDD0FF','#FFD86B','#FFFFFF','#F0679A','#9BD7FF'];
+  function fit(){
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * d; cv.height = H * d;
+    cx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  addEventListener('resize', fit); fit();
+  function spawn(x, y, angle, spread, speed, count){
+    for (var i = 0; i < count; i++){
+      var a = (angle + rand(-spread, spread)) * Math.PI / 180;
+      var s = speed * rand(.55, 1.25);
+      parts.push({
+        x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+        rot:rand(0, 6.28), vr:rand(-.3, .3),
+        z:rand(7, 14), c:pick(CONF), s:Math.floor(rand(0, 3)),
+        t:0, life:rand(150, 260)
+      });
+    }
+  }
+  function tick(){
+    cx.clearRect(0, 0, W, H);
+    parts = parts.filter(function(p){ return p.y < H + 30 && p.t < p.life; });
+    for (var i = 0; i < parts.length; i++){
+      var p = parts[i];
+      p.vx *= .985; p.vy = p.vy * .985 + .28;
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.t++;
+      cx.save();
+      cx.translate(p.x, p.y); cx.rotate(p.rot);
+      cx.globalAlpha = Math.max(0, Math.min(1, (p.life - p.t) / 30));
+      cx.fillStyle = p.c;
+      if (p.s === 0){ cx.fillRect(-p.z/2, -p.z/4, p.z, p.z/2); }
+      else if (p.s === 1 || !HEART_PATH){ cx.beginPath(); cx.arc(0, 0, p.z/2.4, 0, 6.283); cx.fill(); }
+      else { var k = p.z / 24 * 1.6; cx.scale(k, k); cx.translate(-12, -12); cx.fill(HEART_PATH); }
+      cx.restore();
+    }
+    if (parts.length){ raf = requestAnimationFrame(tick); }
+    else { raf = 0; cx.clearRect(0, 0, W, H); }
+  }
+  function fireConfetti(){
+    if (reduce) return;
+    var per = Math.round(Math.min(70, Math.max(34, W / 14)));
+    var sp = Math.max(9, H / 55);
+    spawn(0, H, -62, 22, sp, per);
+    spawn(W, H, -118, 22, sp, per);
+    spawn(W / 2, H * .95, -90, 26, sp * 1.1, per);
+    setTimeout(function(){
+      for (var i = 0; i < 45; i++){ spawn(rand(0, W), -12, 90, 12, rand(1.5, 4), 1); }
+      if (!raf) raf = requestAnimationFrame(tick);
+    }, 350);
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  /* ---------- screens ---------- */
+  var current = 'home', busy = false, opened = false;
+  var envBtn = $('envBtn'), env = $('env'), hint = $('hint');
+
+  function resetEnv(){
+    env.classList.remove('open');
+    hint.classList.remove('gone');
+    envBtn.disabled = false;
+    opened = false;
+  }
+
+  var onEnter = {
+    iyaDone:   function(){ fireConfetti(); loveBurst(10); },
+    nggak:     function(){ fireConfetti(); loveStream(4200); },
+    mau:       function(){ fireConfetti(); loveStream(4200); }
+  };
+
+  function go(id){
+    if (busy || id === current) return;
+    busy = true;
+    stopLove();
+    var from = $('s-' + current), to = $('s-' + id);
+    from.classList.add('out');
+    setTimeout(function(){
+      from.classList.remove('out');
+      from.hidden = true;
+      if (id === 'home') resetEnv();
+      to.hidden = false;
+      to.classList.add('in');
+      current = id;
+      $('restartTop').hidden = (id === 'home');
+      window.scrollTo(0, 0);
+      try { to.focus({preventScroll:true}); } catch (e) {}
+      if (onEnter[id]) onEnter[id]();
+      setTimeout(function(){ to.classList.remove('in'); busy = false; }, reduce ? 0 : 520);
+    }, reduce ? 0 : 300);
+  }
+
+  function restart(){ stopLove(); go('home'); }
+
+  /* ---------- wiring ---------- */
+  envBtn.addEventListener('click', function(){
+    if (opened) return;
+    opened = true;
+    env.classList.add('open');
+    hint.classList.add('gone');
+    envBtn.disabled = true;
+    loveBurst(8);
+    setTimeout(function(){ go('letter'); }, reduce ? 400 : 1900);
+  });
+  $('btnIya').addEventListener('click', function(){ go('iya'); });
+  $('btnNggak').addEventListener('click', function(){ go('nggak'); });
+  $('btnMaaf').addEventListener('click', function(){ go('iyaDone'); });
+  $('btnLoveA').addEventListener('click', function(){ go('proposal'); });
+  $('btnLoveB').addEventListener('click', function(){ go('proposal'); });
+  $('btnMau').addEventListener('click', function(){ go('mau'); });
+  $('btnGakMau').addEventListener('click', function(){ go('gakmau'); });
+  $('restartTop').addEventListener('click', restart);
+  document.querySelectorAll('[data-restart]').forEach(function(b){ b.addEventListener('click', restart); });
+
+  /* ---------- music (synthesized music box, no audio files) ---------- */
+  var midi = function(m){ return 440 * Math.pow(2, (m - 69) / 12); };
+  var CH = [[60,64,67,72],[57,60,64,69],[53,57,60,65],[55,59,62,67]];
+  var PAT = [0,1,2,3,2,1,2,1];
+  var ac = null, master = null, sch = 0, nextT = 0, idx = 0, musicOn = false;
+
+  function note(f, t, dur, vol){
+    var o1 = ac.createOscillator(), o2 = ac.createOscillator();
+    var g = ac.createGain(), g2 = ac.createGain();
+    o1.type = 'triangle'; o1.frequency.value = f;
+    o2.type = 'sine'; o2.frequency.value = f * 2;
+    g2.gain.value = .35;
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o1.start(t); o2.start(t);
+    o1.stop(t + dur + .05); o2.stop(t + dur + .05);
+  }
+  function schedule(){
+    while (nextT < ac.currentTime + .3){
+      var ch = CH[Math.floor(idx / 8) % CH.length], k = idx % 8;
+      note(midi(ch[PAT[k]]), nextT, 1.1, .09);
+      if (k === 0) note(midi(ch[0] - 12), nextT, 2.2, .07);
+      idx++; nextT += .36;
+    }
+  }
+  function musicStart(){
+    if (!ac){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return Promise.resolve(false);
+      ac = new AC();
+      master = ac.createGain();
+      master.gain.value = .55;
+      master.connect(ac.destination);
+    }
+    var ready = ac.state === 'suspended' ? ac.resume() : Promise.resolve();
+    return ready.then(function(){
+      master.gain.setTargetAtTime(.55, ac.currentTime, .02);
+      nextT = ac.currentTime + .05;
+      if (sch) clearInterval(sch);
+      sch = setInterval(schedule, 80);
+      return true;
+    }, function(){ return false; });
+  }
+  function musicStop(){
+    if (sch){ clearInterval(sch); sch = 0; }
+    if (master && ac) master.gain.setTargetAtTime(0, ac.currentTime, .05);
+  }
+  function musicUI(){
+    var b = $('musicBtn');
+    b.classList.toggle('on', musicOn);
+    b.setAttribute('aria-pressed', musicOn ? 'true' : 'false');
+    $('musicLabel').textContent = musicOn ? 'Musik: ON' : 'Musik: OFF';
+  }
+  $('musicBtn').addEventListener('click', function(){
+    if (!musicOn){
+      musicOn = true; musicUI();
+      musicStart().then(function(ok){ if (!ok){ musicOn = false; musicUI(); } });
+    } else {
+      musicOn = false; musicUI(); musicStop();
+    }
+  });
+  document.addEventListener('visibilitychange', function(){
+    if (!ac) return;
+    if (document.hidden){ ac.suspend(); }
+    else if (musicOn){ ac.resume(); }
+  });
+  musicUI();
+})();
+</script>
+
+</body>
+</html>
